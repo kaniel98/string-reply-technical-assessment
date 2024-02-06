@@ -31,12 +31,15 @@ public class ReplyServiceImpl implements ReplyService {
         char[] rules = getRules(messageParts[0]);
         // Iterate through the char array - If 1, execute reverseString if 2 execute encodeString
         for (char rule : rules) {
-            if (rule == '1') {
-                message = reverseString(message);
-            } else if (rule == '2') {
-                message = encodeString(message);
-            } else { // Rule does not exist
-                return ResponseEntity.badRequest().body(new ReplyMessage(ReplyMessageError.invalidRule.getMessage()));
+            switch (rule) {
+                case '1':
+                    message = reverseString(message);
+                    break;
+                case '2':
+                    message = encodeString(message);
+                    break;
+                default:
+                    return ResponseEntity.badRequest().body(new ReplyMessage(ReplyMessageError.invalidRule.getMessage()));
             }
         }
         return ResponseEntity.ok().body(new ReplyMessage(message));
