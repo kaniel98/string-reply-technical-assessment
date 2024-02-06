@@ -1,4 +1,4 @@
-package com.beta.replyservice;
+package com.beta.replyservice.models;
 
 public class ReplyMessage {
 
