@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,11 +37,12 @@ class ReplyServiceImplTest {
         String expected = "5a8973b3b1fafaeaadf10e195c6e1dd4";
 
         // * When
-        ReplyMessage actual = replyService.encodeMessage(messageToBeEncoded);
+        ResponseEntity<ReplyMessage> actual = replyService.encodeMessage(messageToBeEncoded);
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+        assertEquals(HttpStatus.OK.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 
     @DisplayName("Failed: Encode message returns incorrect encoded message - message is empty")
@@ -50,11 +53,12 @@ class ReplyServiceImplTest {
         String expected = ReplyMessageError.messageIsEmpty.getMessage();
 
         // * When
-        ReplyMessage actual = replyService.encodeMessage(messageToBeEncoded);
+        ResponseEntity<ReplyMessage> actual = replyService.encodeMessage(messageToBeEncoded);
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 
     @DisplayName("Failed: Encode message returns incorrect encoded message - message is null")
@@ -65,11 +69,12 @@ class ReplyServiceImplTest {
         String expected = ReplyMessageError.messageIsInvalid.getMessage();
 
         // * When
-        ReplyMessage actual = replyService.encodeMessage(messageToBeEncoded);
+        ResponseEntity<ReplyMessage> actual = replyService.encodeMessage(messageToBeEncoded);
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 
     @DisplayName("Failed: Encode message returns incorrect encoded message - invalid rule")
@@ -80,10 +85,13 @@ class ReplyServiceImplTest {
         String expected = ReplyMessageError.invalidRule.getMessage();
 
         // * When
-        ReplyMessage actual = replyService.encodeMessage(messageToBeEncoded);
+        ResponseEntity<ReplyMessage> actual = replyService.encodeMessage(messageToBeEncoded);
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 }

@@ -1,7 +1,8 @@
 package com.beta.replyservice.service;
 
 import com.beta.replyservice.models.ReplyMessage;
+import org.springframework.http.ResponseEntity;
 
 public interface ReplyService {
-    ReplyMessage encodeMessage(String message);
+    ResponseEntity<ReplyMessage> encodeMessage(String message);
 }

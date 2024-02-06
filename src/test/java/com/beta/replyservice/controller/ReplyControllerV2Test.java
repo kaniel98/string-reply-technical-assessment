@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,14 +39,16 @@ class ReplyControllerV2Test {
     void replyingV2Success() {
         // * Given
         String expected = "5a8973b3b1fafaeaadf10e195c6e1dd4";
-        given(replyService.encodeMessage("12-kbzw9ru")).willReturn(new ReplyMessage(expected));
+        ResponseEntity<ReplyMessage> expectedResponse = ResponseEntity.ok(new ReplyMessage(expected));
+        given(replyService.encodeMessage("12-kbzw9ru")).willReturn(expectedResponse);
 
         // * When
-        ReplyMessage actual = replyControllerV2.replyingV2("12-kbzw9ru");
+        ResponseEntity<ReplyMessage> actual = replyControllerV2.replyingV2("12-kbzw9ru");
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+        assertEquals(HttpStatus.OK.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 
     @Test
@@ -52,12 +56,15 @@ class ReplyControllerV2Test {
     void replyingV2Empty() {
         // * Given
         String expected = ReplyMessageError.messageIsEmpty.getMessage();
+        ResponseEntity<ReplyMessage> expectedResponse = ResponseEntity.badRequest().body(new ReplyMessage(expected));
+        given(replyService.encodeMessage("")).willReturn(expectedResponse);
 
         // * When
-        ReplyMessage actual = replyControllerV2.replyingV2();
+        ResponseEntity<ReplyMessage> actual = replyControllerV2.replyingV2();
 
         // * Then
         assertNotNull(actual);
-        assertEquals(expected, actual.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), actual.getStatusCodeValue());
+        assertEquals(expected, actual.getBody().getMessage());
     }
 }

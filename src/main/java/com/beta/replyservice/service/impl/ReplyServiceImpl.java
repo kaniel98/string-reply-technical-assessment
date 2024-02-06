@@ -4,6 +4,7 @@ import com.beta.replyservice.models.ReplyMessage;
 import com.beta.replyservice.models.ReplyMessageError;
 import com.beta.replyservice.service.ReplyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -14,16 +15,17 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
     @Override
-    public ReplyMessage encodeMessage(String messageToBeEncoded) {
+    public ResponseEntity<ReplyMessage> encodeMessage(String messageToBeEncoded) {
         // Check if string is empty / null
         if (StringUtils.isEmpty(messageToBeEncoded)) {
-            return new ReplyMessage(ReplyMessageError.messageIsEmpty.getMessage());
+            // Throw Bad Request if message is empty
+            return ResponseEntity.badRequest().body(new ReplyMessage(ReplyMessageError.messageIsEmpty.getMessage()));
         }
         // Get the rules and message from the message
         String[] messageParts = messageToBeEncoded.split("-");
         // Make sure the array has 2 parts
         if (messageParts.length != 2) {
-            return new ReplyMessage(ReplyMessageError.messageIsInvalid.getMessage());
+            return ResponseEntity.badRequest().body(new ReplyMessage(ReplyMessageError.messageIsInvalid.getMessage()));
         }
         String message = messageParts[1];
         char[] rules = getRules(messageParts[0]);
@@ -34,10 +36,10 @@ public class ReplyServiceImpl implements ReplyService {
             } else if (rule == '2') {
                 message = encodeString(message);
             } else { // Rule does not exist
-                return new ReplyMessage(ReplyMessageError.invalidRule.getMessage());
+                return ResponseEntity.badRequest().body(new ReplyMessage(ReplyMessageError.invalidRule.getMessage()));
             }
         }
-        return new ReplyMessage(message);
+        return ResponseEntity.ok().body(new ReplyMessage(message));
     }
 
     // * Helper function to retrieve the rules from the message
